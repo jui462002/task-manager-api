@@ -1,0 +1,7 @@
+services:
+  - type: web
+    name: task-manager-api
+    runtime: php
+    runtimeVersion: '8.1'
+    buildCommand: composer install && php artisan migrate --force
+    startCommand: php -S 0.0.0.0:10000 public/index.php
