@@ -3,5 +3,21 @@ services:
     name: task-manager-api
     runtime: php
     runtimeVersion: '8.1'
-    buildCommand: composer install && php artisan migrate --force
-    startCommand: php -S 0.0.0.0:10000 public/index.php
+    buildCommand: bash build.sh
+    startCommand: php -S 0.0.0.0:$PORT public/index.php
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_URL
+        fromService:
+          type: web
+          name: task-manager-api
+          property: host
+      - key: DB_CONNECTION
+        value: postgresql
+    databases:
+      - name: task_manager_db
+        databaseName: task_manager_db
+        user: task_manager_user
