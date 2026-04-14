@@ -17,6 +17,8 @@ services:
           property: host
       - key: DB_CONNECTION
         value: postgresql
+      - key: DB_PORT
+        value: 5432
     databases:
       - name: task_manager_db
         databaseName: task_manager_db
