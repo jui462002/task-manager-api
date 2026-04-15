@@ -1,7 +1,7 @@
-# Use PHP 8.1 with built-in server
-FROM php:8.1-cli
+# Multi-stage build
+FROM php:8.1-cli AS builder
 
-# Install required extensions
+# Install required extensions and dependencies
 RUN apt-get update && apt-get install -y \
     git \
     curl \
@@ -15,12 +15,28 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /app
 
+COPY composer.json composer.lock* ./
+
+# Install PHP dependencies
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Production stage
+FROM php:8.1-cli
+
+# Install runtime dependencies
+RUN apt-get update && apt-get install -y \
+    postgresql-client \
+    libpq-dev \
+    && docker-php-ext-install pdo pdo_pgsql
+
+WORKDIR /app
+
+COPY --from=builder /app/vendor ./vendor
 COPY . .
 
-# Build
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Generate app key
 RUN php artisan key:generate --force || true
-RUN php artisan migrate --force --no-interaction || true
 
-EXPOSE $PORT
-CMD php -S 0.0.0.0:$PORT public/index.php
+EXPOSE 8080
+
+CMD php -S 0.0.0.0:${PORT:-8080} public/index.php
