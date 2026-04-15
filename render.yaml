@@ -2,7 +2,9 @@ services:
   - type: web
     name: task-manager-api
     runtime: docker
-    dockerfilePath: ./Dockerfile
+    dockerfilePath: Dockerfile
+    buildCommand: docker build -t myapp .
+    startCommand: docker run myapp
     envVars:
       - key: APP_ENV
         value: production
