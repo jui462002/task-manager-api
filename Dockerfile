@@ -15,10 +15,11 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 
 WORKDIR /app
 
-COPY composer.json composer.lock* artisan ./
+COPY . .
 
-# Install PHP dependencies
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Install PHP dependencies (skip scripts first)
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader --no-scripts && \
+    composer run-script post-autoload-dump || true
 
 # Production stage
 FROM php:8.1-cli
