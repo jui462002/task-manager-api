@@ -40,4 +40,7 @@ RUN php artisan key:generate --force || true
 
 EXPOSE 8080
 
-CMD php -S 0.0.0.0:${PORT:-8080} public/index.php
+# Create startup script that runs migrations then starts server
+RUN echo '#!/bin/sh\nphp artisan migrate --force --no-interaction || true\nphp -S 0.0.0.0:${PORT:-8080} public/index.php' > /app/start.sh && chmod +x /app/start.sh
+
+CMD ["/app/start.sh"]
